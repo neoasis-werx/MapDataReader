@@ -74,6 +74,7 @@ If you're already using the awesome [Dapper ORM](https://github.com/DapperLib/Da
 
 ```csharp
 // override Dapper extension method to use fast MapDataReader instead of Dapper's built-in reflection
+// mind that we use "SqlConnection" here to abuse C# "type specificty", otherwise you get "ambiguous call" compile error
 public static List<T> Query<T>(this SqlConnection cn, string sql, object parameters = null)
 {
 	if (typeof(T) == typeof(MyClass)) //our own class that we marked with attribute?
@@ -89,6 +90,8 @@ public static List<T> Query<T>(this SqlConnection cn, string sql, object paramet
 Why the C# compiler will choose your method over Dapper's?
 
 When the C# compiler sees two extension methods with the same signature, it uses the one that's "closer" to your code. "Closiness" - is determined by multiple factors - same namespace, same assembly, derived class over base class, implementation over interface etc. Adding an override like this will silently switch your existing code from using Dapper/reflection to using our source generator (b/c it uses a more specific connection type and lives in your project's namescape), while still keeping the awesomeness of Dapper and you barely have to rewrite any of your code.
+
+Mind that we use "SqlConnection" for the extension method here to abuse C# "type specificty", otherwise you get "ambiguous call" compile error.
 
 ---
 
